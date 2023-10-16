@@ -309,7 +309,7 @@ class EarthDailyData:
             data_cube = data_cube.sel(time=data_cube.time[data_cube.clear_percent_ag_cloud_mask >= clear_percent])
         return(data_cube)
         
-    def cross_calibration_collections(self,
+    def create_metacube(self,
                        *list_datacube: Dataset,
                         ):
         

@@ -53,7 +53,7 @@ async def create_analytics_datacube(item: Item, CloudStorage: CloudStorageRepo =
                                     Collections: List[Collections] = Query(...),
                                     Assets: List[Bands] = Query(...),
                                     CloudMask: CloudMask = Query(...),
-                                    SensorCrossCalibration:Question=Query(...),
+                                    CreateMetacube:Question=Query(...),
                                     CloudClearPercent: int = Query(default=0,allow_inf_nan=False,examples=[0,10,50,80,90,100])):
     start_time = time.time()
     client = EarthDailyData()
@@ -69,8 +69,8 @@ async def create_analytics_datacube(item: Item, CloudStorage: CloudStorageRepo =
     
     links=[]
     if len(datacubes)>0:
-        if SensorCrossCalibration.value == 'Yes':
-            cube = client.cross_calibration_collections(*datacubes)
+        if CreateMetacube.value == 'Yes':
+            cube = client.create_metacube(*datacubes)
             zarr_path = dataset_to_zarr_format_indep_sensor(cube,item.EntityID,item.startDate,item.endDate)
             try:
                 # upload result on chosen CloudStorage provider (AWS or Azure)
