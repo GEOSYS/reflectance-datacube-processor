@@ -10,6 +10,7 @@ class Bands(Enum):
     GREEN = "green"
     BLUE = "blue"
     NIR='nir08'
+    NIR9='nir09'
     SWIR1='swir16'
     SWIR2='swir22'
     REDEDGE1='rededge1'

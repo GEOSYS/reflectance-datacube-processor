@@ -9,15 +9,14 @@ dependencies:
   - geojson
   - pyproj
   - zarr
-  - gdal==3.7.2
   - pip 
   - pip:
     # aws
     - boto3
     # azure
     - azure-storage-blob
-    - geosyspy
-    - earthdaily==0.0.1rc4
+    - geosyspy== 0.2.0
+    - earthdaily==0.0.1rc6
     - jupyter
     - matplotlib
     - numpy 

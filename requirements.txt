@@ -28,9 +28,8 @@ netcdf4
 pystac
 stackstac
 odc-stac
-earthdaily==0.0.1rc4
+earthdaily==0.0.1rc6
 # aws
 boto3
-
 # azure
 azure-storage-blob

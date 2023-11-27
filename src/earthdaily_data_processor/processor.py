@@ -61,28 +61,32 @@ class EarthDailyData:
                 - collections : sensor to use : "sentinel-2-l2a",landsat-c2l2-sr, venus-l2a
                 - assets : list of band to get, among : ["red", "green", "blue",  "nir08", "swir16", "swir22","lst]
                 - cloud_mask : cloud mask to use : "native" or "ag_cloud_mask"
+                - clear_percent : clear coverage percentage to select the image takes : int between 0 and 100.
             Returns:
                 xarray.Dataset
         """
-        # Build a list with datasets of each indicator
+        # Initiate an empty list for the datasets of each collections selected
         sensors_datasets = []
-        pol = shapely.wkt.loads(polygon)
-        dataframe_pol = gpd.GeoDataFrame([[1,pol]],columns=['id','geometry'])
-        dataframe_pol.set_geometry('geometry',inplace=True)
-        dataframe_pol.set_crs('epsg:4326',inplace=True)
         sensor_done = []
         
-        if 'lst' in assets :
+        #specific assets by collections management
+        if 'lst' in assets : #thermal band from Landsat
             lst=True
             assets.remove('lst')
         else:
             lst=False
+        
+        if 'nir09' in assets: #band B08A from S2
+            nir09=True
+            assets.remove('nir09')
+        else:
+            nir09=False
             
         #re authenticate if needed
         self.check_client_auth()
         
         if "Sentinel-2 L2A" not in collections:
-            base_dataset =  (self.get_sentinel(polygon = dataframe_pol,assets = assets,cloud_mask = cloud_mask,
+            base_dataset =  (self.get_sentinel(polygon = polygon,assets = assets,cloud_mask = 'native',
                                             dates = [start_date, end_date], clear_percent= clear_percent))
         
         #datacube creation for each collections wanted
@@ -90,24 +94,26 @@ class EarthDailyData:
             try:
                 logging.info(f"EarthDailyData:generate_datacube_optic: Get dataset for {sens}")
                 if sens =="Sentinel-2 L2A":
-                    datacube = (self.get_sentinel(polygon = dataframe_pol,assets = assets,cloud_mask = cloud_mask,
+                    if nir09==True:
+                        assets.append('nir09')
+                    datacube = (self.get_sentinel(polygon = polygon,assets = assets,cloud_mask = cloud_mask,
                                             dates = [start_date, end_date], clear_percent= clear_percent))
                     sensors_datasets.append(datacube.copy()) 
                     base_dataset = datacube.copy()
                     sensor_done.append(self.sensors[0])
                     
                 elif  sens =="Landsat C2L2":
-                    sensors_datasets.append(self.get_landsat(polygon = dataframe_pol,assets = assets,cloud_mask = cloud_mask,
+                    sensors_datasets.append(self.get_landsat(polygon = polygon,assets = assets,cloud_mask = cloud_mask,
                                             dates = [start_date, end_date],base_dataset = base_dataset, clear_percent= clear_percent,lst_band=lst))
                     sensor_done.append(self.sensors[1])
                     
                 elif sens=="Venus L2A":
-                    sensors_datasets.append(self.get_venus(polygon = dataframe_pol,assets = assets,cloud_mask = cloud_mask,
+                    sensors_datasets.append(self.get_venus(polygon = polygon,assets = assets,cloud_mask = cloud_mask,
                                             dates = [start_date, end_date],base_dataset = base_dataset, clear_percent= clear_percent))
                     sensor_done.append(self.sensors[2])
                     
                 elif sens=="EarthDaily Simulated L2A":
-                    sensors_datasets.append(self.get_ed_simulated(polygon = dataframe_pol,assets = assets,
+                    sensors_datasets.append(self.get_ed_simulated(polygon = polygon,assets = assets,
                                             dates = [start_date, end_date],base_dataset = base_dataset))
                     sensor_done.append(self.sensors[3])
                     
